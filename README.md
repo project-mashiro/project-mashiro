@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/shrine-os-overview.svg" width="960" alt="Public GitHub activity: contributions in the past year, commit contributions this UTC month, and public repositories. Refreshed daily by GitHub Actions. Mashiro is smug by default and tuna powered." />
+  <img src="assets/shrine-os-live-3acd6e9ae091.svg" width="960" alt="Public GitHub activity: contributions in the past year, commit contributions this UTC month, and public repositories. Refreshed daily by GitHub Actions. Mashiro is smug by default and tuna powered." />
 </p>
 
 <p align="center">
