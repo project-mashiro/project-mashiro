@@ -10,12 +10,12 @@ The profile uses the selected dark-plum M3 Expressive media layout. Its header, 
 | --- | --- |
 | Header | `shrine-os-header.svg` |
 | Real navigation | `shrine-os-nav-overview.svg`, `shrine-os-nav-projects.svg`, `shrine-os-nav-offerings.svg` |
-| Public activity | `shrine-os-overview.svg` |
+| Public activity | `shrine-os-overview.svg` (template), `shrine-os-live-*.svg` (current image) |
 | Current mode | `shrine-os-mode.svg` |
 | Footer | `shrine-os-footer.svg` |
 | Public counts | `shrine-os-stats.json` |
 
-The **Refresh Shrine OS stats** workflow runs daily at 23:23 UTC (06:23 Asia/Bangkok), and can also be started from the Actions tab. It reads GitHub’s public GraphQL data and updates only the activity SVG and its count snapshot when the figures or month change.
+The **Refresh Shrine OS stats** workflow runs daily at 23:23 UTC (06:23 Asia/Bangkok), and can also be started from the Actions tab. It reads GitHub’s public GraphQL data and updates the activity SVG, its count snapshot, and the README image reference when the figures or month change. A content-based image filename avoids stale GitHub image caches; only the latest generated image is retained.
 
 The large counter is GitHub’s contribution-calendar total for the past year. The month counter is GitHub’s commit contributions in the current UTC month; it is not an all-time commit total. The repository counter counts public repositories owned by this profile. Contributions may take time to appear in GitHub’s API.
 
