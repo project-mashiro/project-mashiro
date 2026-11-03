@@ -13,6 +13,7 @@ The profile uses the selected dark-plum M3 Expressive media layout. Its header, 
 | Public activity | `shrine-os-overview.svg` (template), `shrine-os-live-*.svg` (current image) |
 | Current mode | `shrine-os-mode.svg` |
 | Footer | `shrine-os-footer.svg` |
+| Linked artist credit | `shrine-os-artwork-credit.svg` |
 | Public counts | `shrine-os-stats.json` |
 
 The **Refresh Shrine OS stats** workflow runs daily at 23:23 UTC (06:23 Asia/Bangkok), and can also be started from the Actions tab. It reads GitHub’s public GraphQL data and updates the activity SVG, its count snapshot, and the README image reference when the figures or month change. A content-based image filename avoids stale GitHub image caches; only the latest generated image is retained.
@@ -20,6 +21,10 @@ The **Refresh Shrine OS stats** workflow runs daily at 23:23 UTC (06:23 Asia/Ban
 The large counter is GitHub’s contribution-calendar total for the past year. The month counter is GitHub’s commit contributions in the current UTC month; it is not an all-time commit total. The repository counter counts public repositories owned by this profile. Contributions may take time to appear in GitHub’s API.
 
 The workflow uses the repository’s built-in `GITHUB_TOKEN`, with write access scoped to its refresh job. It needs no personal access token and reads no private repositories. If the API fails, existing artwork is preserved. Scheduled GitHub workflows can be delayed and may be disabled after 60 days without repository activity; the manual run remains available.
+
+## Artwork credit
+
+Mashiro character and emote artwork by [@fuffi_fufi](https://x.com/fuffi_fufi). The supplied emotes are used throughout the profile, with the artist credit linked from the visible Shrine OS credit card.
 
 ## Artwork and motion
 
