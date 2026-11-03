@@ -1,0 +1,130 @@
+name: Refresh Shrine OS stats
+
+on:
+  schedule:
+    - cron: '23 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shrine-stats
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Check out profile
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: true
+      - name: Read public GitHub activity and update the artwork
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROFILE_OWNER: ${{ github.repository_owner }}
+        run: |
+          python3 - <<'PY'
+          import datetime as dt
+          import json
+          import os
+          from pathlib import Path
+          import urllib.request
+          import xml.etree.ElementTree as ET
+
+          now = dt.datetime.now(dt.timezone.utc)
+          month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+          query = '''query($login: String!, $from: DateTime!, $to: DateTime!) {
+            user(login: $login) {
+              repositories(privacy: PUBLIC, ownerAffiliations: OWNER) { totalCount }
+              year: contributionsCollection {
+                contributionCalendar { totalContributions }
+              }
+              month: contributionsCollection(from: $from, to: $to) {
+                totalCommitContributions
+              }
+            }
+          }'''
+          payload = json.dumps({
+              'query': query,
+              'variables': {
+                  'login': os.environ['PROFILE_OWNER'],
+                  'from': month_start.isoformat(),
+                  'to': now.isoformat(),
+              },
+          }).encode()
+          request = urllib.request.Request(
+              'https://api.github.com/graphql', data=payload,
+              headers={
+                  'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'Shrine-OS-profile-stats',
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              result = json.load(response)
+          if result.get('errors'):
+              raise SystemExit('GitHub GraphQL rejected the public stats query: ' +
+                               '; '.join(error['message'] for error in result['errors']))
+          user = result['data']['user']
+          if user is None:
+              raise SystemExit('The public profile could not be found.')
+          stats = {
+              'contributions': user['year']['contributionCalendar']['totalContributions'],
+              'commits': user['month']['totalCommitContributions'],
+              'repositories': user['repositories']['totalCount'],
+              'month': now.strftime('%Y-%m'),
+          }
+          if any(type(stats[key]) is not int or stats[key] < 0
+                 for key in ('contributions', 'commits', 'repositories')):
+              raise SystemExit('GitHub returned invalid public counts; artwork was preserved.')
+          state_path = Path('assets/shrine-os-stats.json')
+          old = json.loads(state_path.read_text()) if state_path.exists() else None
+          if old == stats:
+              print('Public counts are unchanged; no artwork commit needed.')
+              raise SystemExit(0)
+          svg_path = Path('assets/shrine-os-overview.svg')
+          namespace = 'http://www.w3.org/2000/svg'
+          ET.register_namespace('', namespace)
+          tree = ET.parse(svg_path)
+          nodes = {node.get('id'): node for node in tree.iter() if node.get('id')}
+          values = {
+              'stat-contributions': f"{stats['contributions']:,}",
+              'stat-commits': f"{stats['commits']:,}",
+              'stat-repositories': f"{stats['repositories']:,}",
+              'stat-month-label': 'commits · ' + now.strftime('%b %Y'),
+          }
+          for node_id, value in values.items():
+              node = nodes[node_id]
+              node.text = value
+              if node_id != 'stat-month-label':
+                  original = {'stat-contributions': 112, 'stat-commits': 52,
+                              'stat-repositories': 52}[node_id]
+                  node.set('font-size', str(min(original, int(original * 5 / max(5, len(value))))))
+          description = tree.getroot().find('{' + namespace + '}desc')
+          description.text = (
+              f"Public GitHub activity for {os.environ['PROFILE_OWNER']}: "
+              f"{stats['contributions']} contributions in the last year, "
+              f"{stats['commits']} commit contributions in {now:%B %Y} UTC, "
+              f"{stats['repositories']} public owned repositories. "
+              f"Refreshed {now:%Y-%m-%d} by GitHub Actions."
+          )
+          tree.write(svg_path, encoding='utf-8', xml_declaration=True)
+          state_path.write_text(json.dumps(stats, indent=2) + '\n')
+          print('Updated public activity:', json.dumps(stats))
+          PY
+      - name: Commit only changed public stats
+        run: |
+          if git diff --quiet -- assets/shrine-os-overview.svg assets/shrine-os-stats.json; then
+            echo 'The shrine is already up to date.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- assets/shrine-os-overview.svg assets/shrine-os-stats.json
+          git commit -m 'chore: refresh public Shrine OS stats'
+          git push
