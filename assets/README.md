@@ -1,17 +1,24 @@
 # The sticker drawer
 
-Artwork for [Mashiro’s profile](../README.md). Keep profile visuals in this folder so the repository root stays tidy.
+Self-contained artwork for [Mashiro’s profile](../README.md).
 
-| File | Purpose |
+## M3 Expressive components
+
+| Component | Files |
 | --- | --- |
-| `mashiro-hero.svg` | Animated, self-contained welcome banner |
-| `mashiro-hero-still.svg` | Still version of the welcome banner |
-| `mashiro-blep.webp` | Smug little greeting |
-| `mashiro-slipper.webp` | Opinions, delivered personally |
-| `mashiro-nap.webp` | A very important recharge |
+| Welcome | `mashiro-hero.svg`, `mashiro-hero-still.svg` |
+| Section bars | `ritual-heading-v2.svg`, `rules-heading-v2.svg` |
+| Mood cards | `mood-adorable-v2.svg`, `mood-supervise-v2.svg`, `mood-nap-v2.svg` |
+| Personality cards | `identity-v2.svg`, `affection-v2.svg` |
+| Shrine-rule cards | `offerings-v2.svg`, `personal-space-v2.svg` |
+| Native link artwork | `projects-link-v2.svg`, `quiet-link-v2.svg` |
+| Closing surface | `goodbye-v2.svg` |
+| Original animated copies | `mashiro-blep.webp`, `mashiro-slipper.webp`, `mashiro-nap.webp` |
 
-The stickers come from the supplied Mashiro emote collection. They are resized copies; the originals are preserved. The SVG embeds its own sticker and uses no scripts, remote fonts, or external image services.
+The README uses individual image cards so they wrap naturally in GitHub’s layout. Its two graphic navigation cards are wrapped in native links; their alt text describes the destinations. The hero references the verified artwork revision to avoid stale GitHub image caching.
 
-The SVG follows the system reduced-motion preference. A still banner is also linked from the profile. Animated WebP stickers have no reliable motion switch in GitHub Markdown; the text remains readable independently.
+The supplied Mashiro emotes are preserved. The SVG cards embed small first-frame PNG copies, with motion applied to the sticker groups, so the reduced-motion media query can stop every autonomous loop in those cards. The original animated WebP copies remain available separately.
 
-The lilac/pink palette, shaped artwork, and entrance curves adapt the expressive-motion style to GitHub’s image host. Decorative CSS loops approximate the mood; they do not reproduce live Qt springs.
+The lilac/pink/cream tonal surfaces, shaped artwork, 30/23/17/12 rounding, 32-unit page inset, and entry curves adapt the expressive-motion style to GitHub. Entry uses 400ms cubic-bezier(.05,.7,.1,1); accent nudges use cubic-bezier(.38,1.21,.22,1). Ambient loops approximate the expressive character; they do not reproduce live Qt springs.
+
+SVGs use no scripts, remote fonts, foreignObject, or external image dependencies. System reduced-motion preferences stop their CSS animation. GitHub’s image host has no app-level performanceMode or noShapes control. The still welcome artwork is also linked from the profile.
