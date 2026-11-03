@@ -1,24 +1,30 @@
 # The sticker drawer
 
-Self-contained artwork for [Mashiro’s profile](../README.md).
+[Back to Mashiro’s profile](../README.md)
 
-## M3 Expressive components
+## Active theme: Shrine OS
 
-| Component | Files |
+The profile uses the selected dark-plum M3 Expressive media layout. Its header, three native navigation links, public-activity panel, sleepy current-mode player, and footer are separate SVG surfaces.
+
+| Component | Asset |
 | --- | --- |
-| Welcome | `mashiro-hero.svg`, `mashiro-hero-still.svg` |
-| Section bars | `ritual-heading-v2.svg`, `rules-heading-v2.svg` |
-| Mood cards | `mood-adorable-v2.svg`, `mood-supervise-v2.svg`, `mood-nap-v2.svg` |
-| Personality cards | `identity-v2.svg`, `affection-v2.svg` |
-| Shrine-rule cards | `offerings-v2.svg`, `personal-space-v2.svg` |
-| Native link artwork | `projects-link-v2.svg`, `quiet-link-v2.svg` |
-| Closing surface | `goodbye-v2.svg` |
-| Original animated copies | `mashiro-blep.webp`, `mashiro-slipper.webp`, `mashiro-nap.webp` |
+| Header | `shrine-os-header.svg` |
+| Real navigation | `shrine-os-nav-overview.svg`, `shrine-os-nav-projects.svg`, `shrine-os-nav-offerings.svg` |
+| Public activity | `shrine-os-overview.svg` |
+| Current mode | `shrine-os-mode.svg` |
+| Footer | `shrine-os-footer.svg` |
+| Public counts | `shrine-os-stats.json` |
 
-The README uses individual image cards so they wrap naturally in GitHub’s layout. Its two graphic navigation cards are wrapped in native links; their alt text describes the destinations. The hero references the verified artwork revision to avoid stale GitHub image caching.
+The **Refresh Shrine OS stats** workflow runs daily at 23:23 UTC (06:23 Asia/Bangkok), and can also be started from the Actions tab. It reads GitHub’s public GraphQL data and updates only the activity SVG and its count snapshot when the figures or month change.
 
-The supplied Mashiro emotes are preserved. The SVG cards embed small first-frame PNG copies, with motion applied to the sticker groups, so the reduced-motion media query can stop every autonomous loop in those cards. The original animated WebP copies remain available separately.
+The large counter is GitHub’s contribution-calendar total for the past year. The month counter is GitHub’s commit contributions in the current UTC month; it is not an all-time commit total. The repository counter counts public repositories owned by this profile. Contributions may take time to appear in GitHub’s API.
 
-The lilac/pink/cream tonal surfaces, shaped artwork, 30/23/17/12 rounding, 32-unit page inset, and entry curves adapt the expressive-motion style to GitHub. Entry uses 400ms cubic-bezier(.05,.7,.1,1); accent nudges use cubic-bezier(.38,1.21,.22,1). Ambient loops approximate the expressive character; they do not reproduce live Qt springs.
+The workflow uses the repository’s built-in `GITHUB_TOKEN`, with write access scoped to its refresh job. It needs no personal access token and reads no private repositories. If the API fails, existing artwork is preserved. Scheduled GitHub workflows can be delayed and may be disabled after 60 days without repository activity; the manual run remains available.
 
-SVGs use no scripts, remote fonts, foreignObject, or external image dependencies. System reduced-motion preferences stop their CSS animation. GitHub’s image host has no app-level performanceMode or noShapes control. The still welcome artwork is also linked from the profile.
+## Artwork and motion
+
+Icons are genuine **Google Material Symbols Rounded**, embedded as vector paths. Their Apache-2.0 license is bundled in `LICENSE-material-symbols.txt`. The Mashiro emotes come from the supplied artwork collection; originals are preserved.
+
+The SVGs are self-contained: no scripts, remote fonts, foreignObject, or external image dependencies. Floating sticker groups and token-based pulse curves express Mashiro’s personality. System reduced-motion preferences stop their autonomous CSS loops. These are GitHub-image adaptations, not live Qt spring parity. The 30/23/17 rounding, layered aubergine surfaces, lilac accents, and pink tuna card retain the selected design.
+
+Earlier hero, card, and animated WebP assets are retained for reuse.
