@@ -30,8 +30,10 @@ jobs:
         run: |
           python3 - <<'PY'
           import datetime as dt
+          import hashlib
           import json
           import os
+          import re
           from pathlib import Path
           import urllib.request
           import xml.etree.ElementTree as ET
@@ -84,7 +86,11 @@ jobs:
               raise SystemExit('GitHub returned invalid public counts; artwork was preserved.')
           state_path = Path('assets/shrine-os-stats.json')
           old = json.loads(state_path.read_text()) if state_path.exists() else None
-          if old == stats:
+          digest = hashlib.sha256(json.dumps(stats, sort_keys=True).encode()).hexdigest()[:12]
+          live_path = Path('assets/shrine-os-live-' + digest + '.svg')
+          readme_path = Path('README.md')
+          readme = readme_path.read_text()
+          if old == stats and live_path.exists() and str(live_path) in readme:
               print('Public counts are unchanged; no artwork commit needed.')
               raise SystemExit(0)
           svg_path = Path('assets/shrine-os-overview.svg')
@@ -114,17 +120,28 @@ jobs:
               f"Refreshed {now:%Y-%m-%d} by GitHub Actions."
           )
           tree.write(svg_path, encoding='utf-8', xml_declaration=True)
+          live_path.write_bytes(svg_path.read_bytes())
+          updated_readme, matches = re.subn(
+              r'assets/shrine-os-(?:overview|live-[0-9a-f]{12})\.svg',
+              str(live_path), readme,
+          )
+          if matches != 1:
+              raise SystemExit('Expected exactly one Shrine OS stats image; no commit made.')
+          readme_path.write_text(updated_readme)
+          for previous in Path('assets').glob('shrine-os-live-*.svg'):
+              if previous != live_path:
+                  previous.unlink()
           state_path.write_text(json.dumps(stats, indent=2) + '\n')
           print('Updated public activity:', json.dumps(stats))
           PY
       - name: Commit only changed public stats
         run: |
-          if git diff --quiet -- assets/shrine-os-overview.svg assets/shrine-os-stats.json; then
+          if git diff --quiet -- README.md assets/shrine-os-overview.svg assets/shrine-os-stats.json 'assets/shrine-os-live-*.svg'; then
             echo 'The shrine is already up to date.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- assets/shrine-os-overview.svg assets/shrine-os-stats.json
+          git add -A -- README.md assets/shrine-os-overview.svg assets/shrine-os-stats.json 'assets/shrine-os-live-*.svg'
           git commit -m 'chore: refresh public Shrine OS stats'
           git push
