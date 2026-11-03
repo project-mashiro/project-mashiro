@@ -1,4 +1,4 @@
-name: Refresh Shrine OS stats
+name: Refresh Orbit Shrine stats
 
 on:
   schedule:
@@ -64,7 +64,7 @@ jobs:
               headers={
                   'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
                   'Content-Type': 'application/json',
-                  'User-Agent': 'Shrine-OS-profile-stats',
+                  'User-Agent': 'Orbit-Shrine-profile-stats',
               },
           )
           with urllib.request.urlopen(request, timeout=30) as response:
@@ -84,16 +84,16 @@ jobs:
           if any(type(stats[key]) is not int or stats[key] < 0
                  for key in ('contributions', 'commits', 'repositories')):
               raise SystemExit('GitHub returned invalid public counts; artwork was preserved.')
-          state_path = Path('assets/shrine-os-stats.json')
+          state_path = Path('assets/orbit-shrine-stats.json')
           old = json.loads(state_path.read_text()) if state_path.exists() else None
           digest = hashlib.sha256(json.dumps(stats, sort_keys=True).encode()).hexdigest()[:12]
-          live_path = Path('assets/shrine-os-live-' + digest + '.svg')
+          live_path = Path('assets/orbit-shrine-live-' + digest + '.svg')
           readme_path = Path('README.md')
           readme = readme_path.read_text()
           if old == stats and live_path.exists() and str(live_path) in readme:
               print('Public counts are unchanged; no artwork commit needed.')
               raise SystemExit(0)
-          svg_path = Path('assets/shrine-os-overview.svg')
+          svg_path = Path('assets/orbit-shrine.svg')
           namespace = 'http://www.w3.org/2000/svg'
           ET.register_namespace('', namespace)
           tree = ET.parse(svg_path)
@@ -102,14 +102,14 @@ jobs:
               'stat-contributions': f"{stats['contributions']:,}",
               'stat-commits': f"{stats['commits']:,}",
               'stat-repositories': f"{stats['repositories']:,}",
-              'stat-month-label': 'commits · ' + now.strftime('%b %Y'),
+              'stat-month-label': now.strftime('%b').upper() + ' COMMITS',
           }
           for node_id, value in values.items():
               node = nodes[node_id]
               node.text = value
               if node_id != 'stat-month-label':
-                  original = {'stat-contributions': 112, 'stat-commits': 52,
-                              'stat-repositories': 52}[node_id]
+                  original = {'stat-contributions': 48, 'stat-commits': 48,
+                              'stat-repositories': 48}[node_id]
                   node.set('font-size', str(min(original, int(original * 5 / max(5, len(value))))))
           description = tree.getroot().find('{' + namespace + '}desc')
           description.text = (
@@ -117,18 +117,20 @@ jobs:
               f"{stats['contributions']} contributions in the last year, "
               f"{stats['commits']} commit contributions in {now:%B %Y} UTC, "
               f"{stats['repositories']} public owned repositories. "
-              f"Refreshed {now:%Y-%m-%d} by GitHub Actions."
+              f"Refreshed {now:%Y-%m-%d} by GitHub Actions. "
+              "Mashiro character and emote artwork by @fuffi_fufi, https://x.com/fuffi_fufi. "
+              "Rotating petal satellites and floating mascot; reduced-motion pauses ambient animation."
           )
           tree.write(svg_path, encoding='utf-8', xml_declaration=True)
           live_path.write_bytes(svg_path.read_bytes())
           updated_readme, matches = re.subn(
-              r'assets/shrine-os-(?:overview|live-[0-9a-f]{12})\.svg',
+              r'assets/orbit-shrine(?:-live-[0-9a-f]{12})?\.svg',
               str(live_path), readme,
           )
           if matches != 1:
-              raise SystemExit('Expected exactly one Shrine OS stats image; no commit made.')
+              raise SystemExit('Expected exactly one Orbit Shrine image; no commit made.')
           readme_path.write_text(updated_readme)
-          for previous in Path('assets').glob('shrine-os-live-*.svg'):
+          for previous in Path('assets').glob('orbit-shrine-live-*.svg'):
               if previous != live_path:
                   previous.unlink()
           state_path.write_text(json.dumps(stats, indent=2) + '\n')
@@ -136,12 +138,12 @@ jobs:
           PY
       - name: Commit only changed public stats
         run: |
-          if git diff --quiet -- README.md assets/shrine-os-overview.svg assets/shrine-os-stats.json 'assets/shrine-os-live-*.svg'; then
+          if git diff --quiet -- README.md assets/orbit-shrine.svg assets/orbit-shrine-stats.json 'assets/orbit-shrine-live-*.svg'; then
             echo 'The shrine is already up to date.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A -- README.md assets/shrine-os-overview.svg assets/shrine-os-stats.json 'assets/shrine-os-live-*.svg'
-          git commit -m 'chore: refresh public Shrine OS stats'
+          git add -A -- README.md assets/orbit-shrine.svg assets/orbit-shrine-stats.json 'assets/orbit-shrine-live-*.svg'
+          git commit -m 'chore: refresh public Orbit Shrine stats'
           git push
