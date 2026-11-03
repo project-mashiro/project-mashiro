@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/mashiro-hero.svg?version=8dcd8ce" width="960" alt="Mashiro — a little divine, a lot dramatic. A floating white shrine cat, lilac flowers, orbiting candy, and a demand for your attention." />
+  <img src="https://raw.githubusercontent.com/project-mashiro/project-mashiro/8dcd8ce048ffa23479588d07734f2bdb6e48f140/assets/mashiro-hero.svg" width="960" alt="Mashiro — a little divine, a lot dramatic. A floating white shrine cat, lilac flowers, orbiting candy, and a demand for your attention." />
 
   <br />
   <b>Oh. You're here.</b><br />
